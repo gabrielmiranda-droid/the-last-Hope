@@ -116,6 +116,53 @@ export function GameShell() {
   }, []);
 
   useEffect(() => {
+    if (!isMobile) return;
+
+    const frame = canvasFrameRef.current;
+    if (!frame) return;
+
+    const fit = () => {
+      if (frame.classList.contains("canvas-frame-fullscreen")) {
+        frame.style.width = "";
+        frame.style.height = "";
+        frame.style.padding = "";
+        frame.style.flexShrink = "";
+        return;
+      }
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      let w = vw;
+      let h = Math.round(w * (CANVAS_HEIGHT / CANVAS_WIDTH));
+      if (h > vh) {
+        h = vh;
+        w = Math.round(h * (CANVAS_WIDTH / CANVAS_HEIGHT));
+      }
+      frame.style.width = `${w}px`;
+      frame.style.height = `${h}px`;
+      frame.style.padding = "0";
+      frame.style.flexShrink = "0";
+    };
+
+    const delayedFit = () => setTimeout(fit, 120);
+
+    fit();
+    window.addEventListener("resize", fit);
+    window.addEventListener("orientationchange", delayedFit);
+
+    return () => {
+      window.removeEventListener("resize", fit);
+      window.removeEventListener("orientationchange", delayedFit);
+      const f = canvasFrameRef.current;
+      if (f) {
+        f.style.width = "";
+        f.style.height = "";
+        f.style.padding = "";
+        f.style.flexShrink = "";
+      }
+    };
+  }, [isMobile]);
+
+  useEffect(() => {
     audioManager.setMusicVolume(snapshot.options.musicEnabled ? snapshot.options.musicVolume : 0);
     audioManager.setSFXVolume(snapshot.options.sfxVolume);
 
@@ -262,7 +309,7 @@ export function GameShell() {
       <div className="backdrop-glow backdrop-glow-right" />
 
       <section className="game-panel">
-        {showShellChrome && (
+        {showShellChrome && !isMobile && (
           <header className="hud-top">
             <div>
               <p className="eyebrow">Vertical Slice</p>
@@ -357,6 +404,18 @@ export function GameShell() {
 
         <div ref={canvasFrameRef} className={`canvas-frame${isFullscreen ? " canvas-frame-fullscreen" : ""}`}>
           <canvas ref={canvasRef} width={CANVAS_WIDTH} height={CANVAS_HEIGHT} onClick={() => canvasRef.current?.focus()} />
+          {isMobile && showShellChrome && (
+            <div className="mobile-hud-strip">
+              <div className="mobile-energy-wrap">
+                <div className="mobile-energy-bar" style={{ width: `${snapshot.playerEnergy}%`, background: energyBarColor }} />
+              </div>
+              <span className="mobile-stat">{snapshot.generatorsActive}/{snapshot.generatorsTotal}&nbsp;⚡</span>
+              <span className="mobile-stat">{snapshot.collectibles}/{snapshot.collectibleTotal}&nbsp;📋</span>
+              <span className="mobile-stat" style={{ color: dashReady ? "#a8f0ff" : "#9aa6b2" }}>
+                {dashReady ? "DASH✓" : `${snapshot.playerDashCooldown.toFixed(1)}s`}
+              </span>
+            </div>
+          )}
           {isMobile && snapshot.screen === "playing" && <TouchControls engineRef={engineRef} />}
 
           {isFullscreen && (
@@ -665,7 +724,7 @@ export function GameShell() {
           )}
         </div>
 
-        {showShellChrome && (
+        {showShellChrome && !isMobile && (
           <footer className="footer-bar">
             <span>Movimentação precisa, puzzles ambientais e restauração do ecossistema.</span>
             <div className="footer-actions">
