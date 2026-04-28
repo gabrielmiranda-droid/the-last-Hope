@@ -1,0 +1,49 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+dist-ssr/
+
+# Vite cache e arquivos gerados
+.vite/
+.cache/
+.snapshots/
+vite.config.js
+vite.config.d.ts
+*.tsbuildinfo
+
+# Variaveis de ambiente (NUNCA subir para o repo)
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor e ferramentas locais
+.vscode/
+.idea/
+.claude/
+
+# Test coverage
+coverage/
+
+# Arquivos locais de apresentacao
+*.zip
+apresentar.bat
+apresentar.sh
+TheLastHope_Entrega/
+TheLastHope_Entrega.zip
+README_APRESENTACAO.md
+vite-dev.stderr.log
+vite-dev.stdout.log
