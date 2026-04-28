@@ -60,6 +60,7 @@ export function GameShell() {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const isMobile = useIsMobile();
   const isPortrait = useIsPortrait();
+  const isMobileLandscape = isMobile && !isPortrait;
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -116,10 +117,16 @@ export function GameShell() {
   }, []);
 
   useEffect(() => {
-    if (!isMobile) return;
-
     const frame = canvasFrameRef.current;
     if (!frame) return;
+
+    if (!isMobile || isMobileLandscape) {
+      frame.style.width = "";
+      frame.style.height = "";
+      frame.style.padding = "";
+      frame.style.flexShrink = "";
+      return;
+    }
 
     const fit = () => {
       if (frame.classList.contains("canvas-frame-fullscreen")) {
@@ -160,7 +167,7 @@ export function GameShell() {
         f.style.flexShrink = "";
       }
     };
-  }, [isMobile]);
+  }, [isMobile, isMobileLandscape]);
 
   useEffect(() => {
     audioManager.setMusicVolume(snapshot.options.musicEnabled ? snapshot.options.musicVolume : 0);
@@ -297,7 +304,9 @@ export function GameShell() {
   };
 
   return (
-    <main className={`app-shell${isMobile ? " app-shell-mobile" : ""}`}>
+    <main
+      className={`app-shell${isMobile ? " app-shell-mobile" : ""}${isMobileLandscape ? " app-shell-mobile-landscape" : ""}`}
+    >
       {isMobile && isPortrait && (
         <div className="portrait-warning" aria-live="polite">
           <div className="portrait-warning-icon">↻</div>
@@ -308,7 +317,7 @@ export function GameShell() {
       <div className="backdrop-glow backdrop-glow-left" />
       <div className="backdrop-glow backdrop-glow-right" />
 
-      <section className="game-panel">
+      <section className={`game-panel${isMobileLandscape ? " game-panel-mobile-landscape" : ""}`}>
         {showShellChrome && !isMobile && (
           <header className="hud-top">
             <div>
@@ -402,7 +411,10 @@ export function GameShell() {
           </header>
         )}
 
-        <div ref={canvasFrameRef} className={`canvas-frame${isFullscreen ? " canvas-frame-fullscreen" : ""}`}>
+        <div
+          ref={canvasFrameRef}
+          className={`canvas-frame${isFullscreen ? " canvas-frame-fullscreen" : ""}${isMobileLandscape ? " canvas-frame-mobile-landscape" : ""}`}
+        >
           <canvas ref={canvasRef} width={CANVAS_WIDTH} height={CANVAS_HEIGHT} onClick={() => canvasRef.current?.focus()} />
           {isMobile && showShellChrome && (
             <div className="mobile-hud-strip">
