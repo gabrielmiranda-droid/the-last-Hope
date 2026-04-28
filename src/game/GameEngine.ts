@@ -194,6 +194,16 @@ export class GameEngine {
     audioManager.stopMusic();
   }
 
+  injectInput(partial: Partial<InputState>): void {
+    if (partial.left !== undefined) this.input.left = partial.left;
+    if (partial.right !== undefined) this.input.right = partial.right;
+    if (partial.jumpHeld !== undefined) this.input.jumpHeld = partial.jumpHeld;
+    if (partial.jumpPressed) this.input.jumpPressed = true;
+    if (partial.dashPressed) this.input.dashPressed = true;
+    if (partial.interactPressed) this.input.interactPressed = true;
+    if (partial.pausePressed) this.input.pausePressed = true;
+  }
+
   start() {
     this.lastFrame = performance.now();
     this.loop(this.lastFrame);
@@ -343,6 +353,7 @@ export class GameEngine {
   private getDeathCauseMessage(cause: DamageSource) {
     switch (cause) {
       case "spike":
+        return "Perfurado pelos espinhos.";
       case "fall":
         return "Voce caiu no abismo.";
       case "laser":

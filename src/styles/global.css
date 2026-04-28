@@ -1054,3 +1054,207 @@ input[type="checkbox"] {
     min-height: 340px;
   }
 }
+
+/* ─── Prevent body scroll (game is always viewport-height) ─────────────── */
+html,
+body,
+#root {
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
+  touch-action: pan-x pan-y;
+}
+
+/* ─── Portrait warning overlay ──────────────────────────────────────────── */
+.portrait-warning {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 32px;
+  background: rgba(10, 14, 18, 0.97);
+  color: #eef4f6;
+  text-align: center;
+  backdrop-filter: blur(8px);
+}
+
+.portrait-warning-icon {
+  font-size: 3.2rem;
+  animation: rotateHint 2s ease-in-out infinite;
+}
+
+.portrait-warning strong {
+  font-size: 1.4rem;
+  letter-spacing: 0.06em;
+}
+
+.portrait-warning p {
+  margin: 0;
+  color: rgba(238, 244, 246, 0.72);
+  font-size: 1rem;
+  max-width: 260px;
+}
+
+@keyframes rotateHint {
+  0%, 100% { transform: rotate(0deg); }
+  40%, 60% { transform: rotate(90deg); }
+}
+
+/* ─── Touch control overlay ─────────────────────────────────────────────── */
+.touch-controls {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 10;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.touch-btn {
+  pointer-events: all;
+  touch-action: none;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.22);
+  background: rgba(0, 0, 0, 0.48);
+  backdrop-filter: blur(6px);
+  color: #eef4f6;
+  font-size: 1.35rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.32), inset 0 1px 0 rgba(255,255,255,0.08);
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  transition: background 0.08s ease, transform 0.08s ease, border-color 0.08s ease;
+  /* Override global button styles */
+  border-radius: 50%;
+  padding: 0;
+  color: #eef4f6;
+}
+
+.touch-btn:active {
+  background: rgba(91, 192, 235, 0.38);
+  transform: scale(0.91);
+  border-color: rgba(168, 240, 255, 0.55);
+  box-shadow: 0 0 18px rgba(91, 192, 235, 0.28);
+}
+
+.touch-btn-jump {
+  background: rgba(91, 192, 235, 0.22);
+  border-color: rgba(168, 240, 255, 0.38);
+  font-size: 1.6rem;
+}
+
+.touch-btn-jump:active {
+  background: rgba(91, 192, 235, 0.52);
+}
+
+/* ─── Mobile landscape: compact game layout ─────────────────────────────── */
+@media (max-width: 1024px) and (orientation: landscape) and (pointer: coarse) {
+  .app-shell {
+    padding: 0;
+    min-height: 100svh;
+  }
+
+  .game-panel {
+    width: 100%;
+    max-width: 100%;
+    border-radius: 0;
+    border: none;
+    min-height: 100svh;
+  }
+
+  .hud-top {
+    flex-direction: row;
+    padding: 6px 10px;
+    gap: 8px;
+  }
+
+  .hud-top h1 {
+    font-size: 1rem;
+  }
+
+  .eyebrow,
+  .subtitle {
+    display: none;
+  }
+
+  .hud-metrics {
+    gap: 6px;
+  }
+
+  .metric-card {
+    padding: 5px 8px;
+    min-width: 80px;
+    border-radius: 12px;
+  }
+
+  .metric-card.compact {
+    min-width: 60px;
+  }
+
+  .metric-card span {
+    font-size: 0.65rem;
+    margin-bottom: 3px;
+  }
+
+  .canvas-frame {
+    padding: 0 4px 4px;
+  }
+
+  .footer-bar {
+    display: none;
+  }
+
+  /* Keep objective visible but compact */
+  .objective-card {
+    left: 8px;
+    top: 6px;
+    max-width: 180px;
+    padding: 6px 8px;
+    font-size: 0.75rem;
+    border-radius: 12px;
+  }
+
+  .objective-card span {
+    font-size: 0.62rem;
+  }
+
+  /* Narrative toast repositioned so it doesn't overlap touch buttons */
+  .narrative-toast {
+    right: 8px;
+    top: 6px;
+    max-width: 200px;
+    padding: 8px 10px;
+    font-size: 0.78rem;
+  }
+
+  /* Death counter above left touch buttons */
+  .death-counter {
+    left: 8px;
+    bottom: 112px;
+  }
+
+  /* Interaction pill moved up from bottom */
+  .interaction-pill {
+    bottom: 120px;
+  }
+}
+
+/* ─── Mobile app-shell full-bleed ───────────────────────────────────────── */
+.app-shell-mobile .game-panel {
+  border-radius: 0;
+}
+
+@media (max-width: 1024px) and (pointer: coarse) {
+  .app-shell {
+    padding: 0;
+  }
+}

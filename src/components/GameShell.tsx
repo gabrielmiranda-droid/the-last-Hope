@@ -4,6 +4,9 @@ import { CHARACTER_OPTIONS } from "../game/characters";
 import { CANVAS_HEIGHT, CANVAS_WIDTH, DASH_COOLDOWN, PLAYER_MAX_ENERGY } from "../game/constants";
 import { GameEngine } from "../game/GameEngine";
 import type { GameSnapshot } from "../game/types";
+import { useIsMobile } from "../hooks/useIsMobile";
+import { useIsPortrait } from "../hooks/useIsPortrait";
+import { TouchControls } from "./TouchControls";
 
 const initialSnapshot: GameSnapshot = {
   screen: "menu",
@@ -55,6 +58,8 @@ export function GameShell() {
   const fullscreenTransitionRef = useRef(false);
   const [snapshot, setSnapshot] = useState<GameSnapshot>(initialSnapshot);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const isMobile = useIsMobile();
+  const isPortrait = useIsPortrait();
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -245,7 +250,14 @@ export function GameShell() {
   };
 
   return (
-    <main className="app-shell">
+    <main className={`app-shell${isMobile ? " app-shell-mobile" : ""}`}>
+      {isMobile && isPortrait && (
+        <div className="portrait-warning" aria-live="polite">
+          <div className="portrait-warning-icon">↻</div>
+          <strong>Vire o celular</strong>
+          <p>Gire para horizontal para jogar melhor.</p>
+        </div>
+      )}
       <div className="backdrop-glow backdrop-glow-left" />
       <div className="backdrop-glow backdrop-glow-right" />
 
@@ -345,6 +357,7 @@ export function GameShell() {
 
         <div ref={canvasFrameRef} className={`canvas-frame${isFullscreen ? " canvas-frame-fullscreen" : ""}`}>
           <canvas ref={canvasRef} width={CANVAS_WIDTH} height={CANVAS_HEIGHT} onClick={() => canvasRef.current?.focus()} />
+          {isMobile && snapshot.screen === "playing" && <TouchControls engineRef={engineRef} />}
 
           {isFullscreen && (
             <button className="fullscreen-exit" onClick={() => void toggleFullscreen()}>
@@ -566,7 +579,7 @@ export function GameShell() {
                 <span>Mortes</span>
                 <strong>{snapshot.deathCount}</strong>
               </div>
-              <div className="controls-card">
+              {!isMobile && <div className="controls-card">
                 <span>Controles</span>
                 <div className="controls-list">
                   <strong>
@@ -587,7 +600,7 @@ export function GameShell() {
                     <small>pause</small>
                   </strong>
                 </div>
-              </div>
+              </div>}
             </div>
           )}
 
