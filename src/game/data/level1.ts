@@ -34,11 +34,9 @@ export const levelOne: LevelData = {
     { id: "z2-exit-step", kind: "static", x: 2456, y: 392, width: 72, height: 24 },
     { id: "z2-exit-break", kind: "breakable", x: 2560, y: 456, width: 80, height: 24, breakDelay: 0.56, respawnDelay: 2.2 },
 
-    // Zona 3: lasers + timed platforms (VERSÃO MAIS FÁCIL)
+    // Zona 3: lasers + timed platforms
     { id: "z3-floor-left", kind: "static", x: 2592, y: 608, width: 128, height: 112 },
-
-    // Plataforma de descanso estática — jogador para aqui para observar o padrão
-    { id: "z3-rest",      kind: "static", x: 2720, y: 568, width: 80,  height: 24 },
+    { id: "z3-rest",       kind: "static", x: 2720, y: 568, width: 80,  height: 24 },
     {
       id: "z3-timed-a",
       kind: "timed",
@@ -47,9 +45,9 @@ export const levelOne: LevelData = {
       width: 112,
       height: 24,
       active: true,
-      timer: 1.8,
-      breakDelay: 1.8,    // era 1.3 — fica ativa por mais tempo
-      respawnDelay: 0.6   // era 0.9 — volta mais rápido
+      timer: 1.1,
+      breakDelay: 1.1,
+      respawnDelay: 0.9
     },
     {
       id: "z3-timed-b",
@@ -59,9 +57,9 @@ export const levelOne: LevelData = {
       width: 112,
       height: 24,
       active: true,
-      timer: 1.7,
-      breakDelay: 1.7,    // era 1.2
-      respawnDelay: 0.6   // era 0.85
+      timer: 0.95,
+      breakDelay: 1.0,
+      respawnDelay: 0.9
     },
     {
       id: "z3-timed-c",
@@ -71,9 +69,9 @@ export const levelOne: LevelData = {
       width: 112,
       height: 24,
       active: true,
-      timer: 1.6,
-      breakDelay: 1.6,    // era 1.1
-      respawnDelay: 0.55  // era 0.8
+      timer: 0.88,
+      breakDelay: 0.92,
+      respawnDelay: 0.95
     },
     {
       id: "z3-timed-d",
@@ -83,9 +81,9 @@ export const levelOne: LevelData = {
       width: 112,
       height: 24,
       active: true,
-      timer: 1.5,
-      breakDelay: 1.5,    // era 1.0
-      respawnDelay: 0.55  // era 0.75
+      timer: 0.72,
+      breakDelay: 0.82,
+      respawnDelay: 1.0
     },
     { id: "z3-step-top",   kind: "static", x: 3536, y: 360, width: 80,  height: 24 },
     { id: "z3-tower-base", kind: "static", x: 3504, y: 608, width: 192, height: 112 },
@@ -104,7 +102,7 @@ export const levelOne: LevelData = {
       height: 24,
       moveAxis: "y",
       range: 64,
-      speed: 1.18,
+      speed: 2.2,
       originX: 4288,
       originY: 552
     },
@@ -118,14 +116,14 @@ export const levelOne: LevelData = {
       height: 24,
       moveAxis: "x",
       range: 84,
-      speed: 1.42,
+      speed: 2.6,
       originX: 4608,
       originY: 432
     },
     { id: "z4-safe-b", kind: "static", x: 4784, y: 368, width: 72, height: 24 },
     { id: "z4-tower-base", kind: "static", x: 4912, y: 608, width: 192, height: 112 },
-    { id: "z4-tower-body", kind: "static", x: 4944, y: 304, width: 96, height: 304 },
-    { id: "z4-tower-top", kind: "static", x: 4912, y: 240, width: 160, height: 32 },
+    { id: "z4-tower-body", kind: "static", x: 4944, y: 336, width: 96, height: 272 },
+    { id: "z4-tower-top",  kind: "static", x: 4912, y: 304, width: 160, height: 32  },
     { id: "z4-approach-step", kind: "static", x: 5136, y: 320, width: 96, height: 24 },
 
     // Zona 5: climax final
@@ -144,7 +142,7 @@ export const levelOne: LevelData = {
   generators: [
     { id: "z2-generator-west", label: "Gerador Oeste", x: 2288, y: 248, width: 64, height: 80, active: false },
     { id: "z3-generator-central", label: "Gerador Central", x: 3552, y: 224, width: 64, height: 80, active: false },
-    { id: "z4-generator-east", label: "Gerador Leste", x: 4960, y: 160, width: 64, height: 80, active: false }
+    { id: "z4-generator-east", label: "Gerador Leste", x: 4960, y: 224, width: 64, height: 80, active: false }
   ],
 
   checkpoints: [
