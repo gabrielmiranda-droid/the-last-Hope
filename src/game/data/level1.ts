@@ -36,53 +36,54 @@ export const levelOne: LevelData = {
 
     // Zona 3: lasers + timed platforms
     { id: "z3-floor-left", kind: "static", x: 2592, y: 608, width: 128, height: 112 },
+    { id: "z3-rest", kind: "static", x: 2720, y: 568, width: 80, height: 24 },
     {
       id: "z3-timed-a",
       kind: "timed",
-      x: 2784,
+      x: 2864,
       y: 552,
-      width: 96,
+      width: 112,
       height: 24,
       active: true,
-      timer: 1.3,
-      breakDelay: 1.3,
-      respawnDelay: 0.9
+      timer: 1.8,
+      breakDelay: 1.8,
+      respawnDelay: 0.6
     },
     {
       id: "z3-timed-b",
       kind: "timed",
-      x: 2944,
+      x: 3040,
       y: 504,
-      width: 96,
+      width: 112,
       height: 24,
       active: true,
-      timer: 1.2,
-      breakDelay: 1.2,
-      respawnDelay: 0.85
+      timer: 1.7,
+      breakDelay: 1.7,
+      respawnDelay: 0.7
     },
     {
       id: "z3-timed-c",
       kind: "timed",
-      x: 3104,
+      x: 3216,
       y: 456,
-      width: 96,
+      width: 112,
       height: 24,
       active: true,
-      timer: 1.1,
-      breakDelay: 1.1,
+      timer: 1.6,
+      breakDelay: 1.6,
       respawnDelay: 0.8
     },
     {
       id: "z3-timed-d",
       kind: "timed",
-      x: 3264,
+      x: 3392,
       y: 408,
-      width: 96,
+      width: 112,
       height: 24,
       active: true,
-      timer: 1.0,
-      breakDelay: 1.0,
-      respawnDelay: 0.75
+      timer: 1.5,
+      breakDelay: 1.5,
+      respawnDelay: 0.9
     },
     { id: "z3-step-top", kind: "static", x: 3424, y: 360, width: 72, height: 24 },
     { id: "z3-tower-base", kind: "static", x: 3504, y: 608, width: 192, height: 112 },
