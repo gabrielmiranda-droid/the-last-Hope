@@ -34,58 +34,71 @@ export const levelOne: LevelData = {
     { id: "z2-exit-step", kind: "static", x: 2456, y: 392, width: 72, height: 24 },
     { id: "z2-exit-break", kind: "breakable", x: 2560, y: 456, width: 80, height: 24, breakDelay: 0.56, respawnDelay: 2.2 },
 
-    // Zona 3: lasers + timed platforms
+    // Zona 3: 5 timed platforms - piso 64px (ligeiramente maior que o player 42px)
+    // breakDelay alto = fica ativo por muito tempo | respawnDelay baixo = volta rapido
     { id: "z3-floor-left", kind: "static", x: 2592, y: 608, width: 128, height: 112 },
-    { id: "z3-rest",       kind: "static", x: 2720, y: 568, width: 80,  height: 24 },
+    { id: "z3-rest",       kind: "static", x: 2720, y: 568, width: 80,  height: 24  },
     {
       id: "z3-timed-a",
       kind: "timed",
-      x: 2864,
+      x: 2848,
       y: 552,
-      width: 112,
+      width: 64,
       height: 24,
       active: true,
-      timer: 1.1,
-      breakDelay: 1.1,
-      respawnDelay: 0.9
+      timer: 2.2,
+      breakDelay: 2.2,
+      respawnDelay: 0.5
     },
     {
       id: "z3-timed-b",
       kind: "timed",
-      x: 3040,
-      y: 504,
-      width: 112,
+      x: 2976,
+      y: 520,
+      width: 64,
       height: 24,
       active: true,
-      timer: 0.95,
-      breakDelay: 1.0,
-      respawnDelay: 0.9
+      timer: 2.1,
+      breakDelay: 2.1,
+      respawnDelay: 0.5
     },
     {
       id: "z3-timed-c",
       kind: "timed",
-      x: 3216,
-      y: 456,
-      width: 112,
+      x: 3104,
+      y: 488,
+      width: 64,
       height: 24,
       active: true,
-      timer: 0.88,
-      breakDelay: 0.92,
-      respawnDelay: 0.95
+      timer: 2.0,
+      breakDelay: 2.0,
+      respawnDelay: 0.5
     },
     {
       id: "z3-timed-d",
       kind: "timed",
-      x: 3392,
-      y: 408,
-      width: 112,
+      x: 3232,
+      y: 456,
+      width: 64,
       height: 24,
       active: true,
-      timer: 0.72,
-      breakDelay: 0.82,
-      respawnDelay: 1.0
+      timer: 1.9,
+      breakDelay: 1.9,
+      respawnDelay: 0.5
     },
-    { id: "z3-step-top",   kind: "static", x: 3536, y: 360, width: 80,  height: 24 },
+    {
+      id: "z3-timed-e",
+      kind: "timed",
+      x: 3360,
+      y: 424,
+      width: 64,
+      height: 24,
+      active: true,
+      timer: 1.8,
+      breakDelay: 1.8,
+      respawnDelay: 0.5
+    },
+    { id: "z3-step-top",   kind: "static", x: 3472, y: 392, width: 64,  height: 24  },
     { id: "z3-tower-base", kind: "static", x: 3504, y: 608, width: 192, height: 112 },
     { id: "z3-tower-body", kind: "static", x: 3536, y: 368, width: 96,  height: 240 },
     { id: "z3-tower-top",  kind: "static", x: 3504, y: 304, width: 160, height: 32  },
