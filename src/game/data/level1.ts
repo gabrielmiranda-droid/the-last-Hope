@@ -44,9 +44,9 @@ export const levelOne: LevelData = {
       width: 96,
       height: 24,
       active: true,
-      timer: 1.04,
-      breakDelay: 1.04,
-      respawnDelay: 0.72
+      timer: 1.3,
+      breakDelay: 1.3,
+      respawnDelay: 0.9
     },
     {
       id: "z3-timed-b",
@@ -56,9 +56,9 @@ export const levelOne: LevelData = {
       width: 96,
       height: 24,
       active: true,
-      timer: 0.96,
-      breakDelay: 0.96,
-      respawnDelay: 0.68
+      timer: 1.2,
+      breakDelay: 1.2,
+      respawnDelay: 0.85
     },
     {
       id: "z3-timed-c",
@@ -68,9 +68,9 @@ export const levelOne: LevelData = {
       width: 96,
       height: 24,
       active: true,
-      timer: 0.88,
-      breakDelay: 0.88,
-      respawnDelay: 0.64
+      timer: 1.1,
+      breakDelay: 1.1,
+      respawnDelay: 0.8
     },
     {
       id: "z3-timed-d",
@@ -80,9 +80,9 @@ export const levelOne: LevelData = {
       width: 96,
       height: 24,
       active: true,
-      timer: 0.8,
-      breakDelay: 0.8,
-      respawnDelay: 0.6
+      timer: 1.0,
+      breakDelay: 1.0,
+      respawnDelay: 0.75
     },
     { id: "z3-step-top", kind: "static", x: 3424, y: 360, width: 72, height: 24 },
     { id: "z3-tower-base", kind: "static", x: 3504, y: 608, width: 192, height: 112 },
