@@ -154,6 +154,7 @@ export type LevelData = {
 export type InputState = {
   left: boolean;
   right: boolean;
+  down: boolean;
   dashPressed: boolean;
   jumpPressed: boolean;
   jumpHeld: boolean;
@@ -196,6 +197,10 @@ export type GameSnapshot = {
   deathCause: string;
   deathCauseTimer: number;
   restoration: number;
+  debugFlyUnlocked: boolean;
+  debugFlyEnabled: boolean;
+  playerWorldX: number;
+  playerWorldY: number;
   transitionTitle: string;
   transitionSubtitle: string;
   transitionProgress: number;

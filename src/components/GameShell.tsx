@@ -36,6 +36,10 @@ const initialSnapshot: GameSnapshot = {
   deathCause: "",
   deathCauseTimer: 0,
   restoration: 0,
+  debugFlyUnlocked: false,
+  debugFlyEnabled: false,
+  playerWorldX: 0,
+  playerWorldY: 0,
   transitionTitle: "",
   transitionSubtitle: "",
   transitionProgress: 0,
@@ -46,6 +50,30 @@ const initialSnapshot: GameSnapshot = {
     showHints: true
   }
 };
+
+const CHARACTER_DOSSIERS: Record<string, { callsign: string; profile: string; note: string }> = {
+  zion: {
+    callsign: "Z-01",
+    profile: "Infiltracao vertical",
+    note: "Le o terreno rapido e mantem o ritmo em estruturas instaveis."
+  },
+  kira: {
+    callsign: "K-17",
+    profile: "Corrida de sistema",
+    note: "Opera em alta velocidade e reage bem a janelas curtas entre armadilhas."
+  },
+  brad: {
+    callsign: "B-09",
+    profile: "Suporte mecanico",
+    note: "Aguenta a pressao e entra pesado quando o setor pede leitura tecnica."
+  }
+};
+
+const LOADING_STEPS = [
+  "Sincronizando o traje",
+  "Mapeando o setor energizado",
+  "Abrindo a rota de entrada"
+] as const;
 
 export function GameShell() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -233,6 +261,21 @@ export function GameShell() {
             ? "Transicao"
             : snapshot.levelName;
 
+  const selectedCharacterIndex = Math.max(
+    0,
+    CHARACTER_OPTIONS.findIndex((character) => character.id === selectedCharacter.id)
+  );
+  const selectedDossier = CHARACTER_DOSSIERS[selectedCharacter.id] ?? CHARACTER_DOSSIERS.zion;
+  const musicVolumePercent = Math.round(snapshot.options.musicVolume * 100);
+  const sfxVolumePercent = Math.round(snapshot.options.sfxVolume * 100);
+  const loadingStepIndex =
+    snapshot.loadingProgress < 0.34 ? 0 : snapshot.loadingProgress < 0.67 ? 1 : LOADING_STEPS.length - 1;
+  const menuTelemetry = [
+    { label: "Operativos", value: `0${CHARACTER_OPTIONS.length}`.slice(-2) },
+    { label: "Canal", value: snapshot.options.musicEnabled ? "Audio online" : "Silencio" },
+    { label: "Setor inicial", value: snapshot.introTitle }
+  ];
+
   const cycleCharacter = (direction: 1 | -1) => {
     const currentIndex = Math.max(
       0,
@@ -244,14 +287,14 @@ export function GameShell() {
 
   const menuButtons = [
     {
-      label: "Jogar",
+      label: "Iniciar expedicao",
       kind: "primary",
       action: () => {
         audioManager.fadeOutMusic(0.8);
         engine?.startGame();
       }
     },
-    { label: "Escolher Personagem", kind: "secondary", action: () => cycleCharacter(1) },
+    { label: "Tela cheia", kind: "secondary", action: () => void toggleFullscreen() },
     { label: "Opções", kind: "secondary", action: () => engine?.openOptions() },
     { label: "Sair", kind: "ghost", action: () => engine?.exitGame() }
   ] as const;
@@ -451,6 +494,19 @@ export function GameShell() {
                   <h2 className="menu-title">THE LAST HOPE</h2>
                   <p className="menu-tagline">Restaure o sistema. Traga a água de volta.</p>
 
+                  <p className="menu-summary">
+                    Escolha o operativo, ajuste o som e deixe a incursao pronta antes de abrir o setor.
+                  </p>
+
+                  <div className="menu-telemetry-row">
+                    {menuTelemetry.map((item) => (
+                      <div key={item.label} className="menu-telemetry-chip">
+                        <span>{item.label}</span>
+                        <strong>{item.value}</strong>
+                      </div>
+                    ))}
+                  </div>
+
                   <div className="featured-character-shell">
                     <button
                       ref={(element) => {
@@ -494,11 +550,73 @@ export function GameShell() {
                   <div className="featured-character-copy">
                     <strong>{selectedCharacter.name}</strong>
                     <span>{selectedCharacter.title}</span>
-                    <small>Use A/D ou setas esquerda/direita para trocar.</small>
+                    <small>
+                      Slot 0{selectedCharacterIndex + 1} // {selectedDossier.callsign} // {selectedDossier.profile} // use
+                      A/D ou as setas para trocar
+                    </small>
+                  </div>
+
+                  <div className="hero-briefing-card">
+                    <div className="hero-briefing-top">
+                      <span>Briefing do setor</span>
+                      <strong>{snapshot.introTitle}</strong>
+                    </div>
+                    <p>{snapshot.introText}</p>
+                    <div className="hero-briefing-grid">
+                      <div>
+                        <span>Operativo</span>
+                        <strong>{selectedCharacter.name}</strong>
+                      </div>
+                      <div>
+                        <span>Leitura</span>
+                        <strong>{selectedDossier.note}</strong>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="character-selector-grid" aria-label="Selecao de personagem">
+                    {CHARACTER_OPTIONS.map((character, index) => {
+                      const isActive = character.id === selectedCharacter.id;
+                      return (
+                        <button
+                          key={character.id}
+                          className={`character-option-button${isActive ? " is-active" : ""}`}
+                          style={
+                            {
+                              "--character-accent": character.accent,
+                              "--character-shadow": character.shadow,
+                              "--sprite-sheet": `url(${character.animations.idle.path})`
+                            } as CSSProperties
+                          }
+                          onClick={() => engine?.selectCharacter(character.id)}
+                          aria-pressed={isActive}
+                        >
+                          <div className="character-option-top">
+                            <span>0{index + 1}</span>
+                            {isActive && <small>ATIVO</small>}
+                          </div>
+                          <div className="character-option-preview">
+                            <div className="character-option-sprite" />
+                          </div>
+                          <div className="character-option-copy">
+                            <strong>{character.name}</strong>
+                            <span>{character.title}</span>
+                          </div>
+                        </button>
+                      );
+                    })}
                   </div>
                 </section>
 
                 <nav className="menu-actions" aria-label="Menu principal">
+                  <div className="menu-actions-panel">
+                    <p className="eyebrow">Centro de comando</p>
+                    <h3 className="menu-panel-title">Preparacao de missao</h3>
+                    <p className="menu-panel-copy">
+                      Configure o audio, revise o operativo e acione o jogo quando a expedicao estiver pronta.
+                    </p>
+                  </div>
+
                   {menuButtons.map((button, index) => (
                     <button
                       key={button.label}
@@ -511,6 +629,72 @@ export function GameShell() {
                       {button.label}
                     </button>
                   ))}
+
+                  <div className="menu-mini-grid">
+                    <div className="menu-mini-card">
+                      <span>Operativo ativo</span>
+                      <strong>{selectedCharacter.name}</strong>
+                    </div>
+                    <div className="menu-mini-card">
+                      <span>Canal musical</span>
+                      <strong>{snapshot.options.musicEnabled ? `${musicVolumePercent}%` : "OFF"}</strong>
+                    </div>
+                    <div className="menu-mini-card">
+                      <span>Leitura HUD</span>
+                      <strong>{snapshot.options.showHints ? "Assistida" : "Crua"}</strong>
+                    </div>
+                  </div>
+
+                  <div className="menu-sound-panel">
+                    <div className="menu-sound-head">
+                      <span>Audio de campo</span>
+                      <strong>{sfxVolumePercent}% SFX</strong>
+                    </div>
+
+                    <label className="menu-toggle-line">
+                      <span>Musica</span>
+                      <div className="menu-toggle-controls">
+                        <strong>{snapshot.options.musicEnabled ? "Ligada" : "Desligada"}</strong>
+                        <input
+                          type="checkbox"
+                          checked={snapshot.options.musicEnabled}
+                          onChange={(event) => engine?.setOptions({ musicEnabled: event.target.checked })}
+                        />
+                      </div>
+                    </label>
+
+                    <label className="menu-range-block">
+                      <div className="menu-range-header">
+                        <span>Volume musical</span>
+                        <strong>{musicVolumePercent}%</strong>
+                      </div>
+                      <input
+                        type="range"
+                        min="0"
+                        max="100"
+                        value={musicVolumePercent}
+                        onChange={(event) => engine?.setOptions({ musicVolume: Number(event.target.value) / 100 })}
+                      />
+                    </label>
+
+                    <label className="menu-range-block">
+                      <div className="menu-range-header">
+                        <span>Efeitos sonoros</span>
+                        <strong>{sfxVolumePercent}%</strong>
+                      </div>
+                      <input
+                        type="range"
+                        min="0"
+                        max="100"
+                        value={sfxVolumePercent}
+                        onChange={(event) => engine?.setOptions({ sfxVolume: Number(event.target.value) / 100 })}
+                      />
+                    </label>
+                  </div>
+
+                  <p className="launch-note">
+                    Depois de clicar em iniciar, a fase carrega e o jogo abre assim que o setor terminar de subir.
+                  </p>
                   {snapshot.narrativeText?.includes("Se a aba") && <div className="menu-note">{snapshot.narrativeText}</div>}
                 </nav>
               </div>
@@ -605,12 +789,48 @@ export function GameShell() {
 
           {snapshot.screen === "loading" && (
             <div className="overlay-menu">
-              <div className="story-card menu-subscreen loading-card">
+              <div className="story-card menu-subscreen loading-card loading-card-rich">
                 <p className="eyebrow">Transição</p>
                 <h2>{snapshot.loadingTitle}</h2>
                 <p>{snapshot.loadingSubtitle}</p>
+                <div className="loading-stage">
+                  <div
+                    className="loading-character-stage"
+                    style={{ "--character-accent": selectedCharacter.accent } as CSSProperties}
+                  >
+                    <div className="featured-character-glow" />
+                    <div
+                      className="featured-character-sprite"
+                      style={
+                        {
+                          "--sprite-sheet": `url(${selectedCharacter.animations.idle.path})`,
+                          "--character-accent": selectedCharacter.accent
+                        } as CSSProperties
+                      }
+                    />
+                  </div>
+
+                  <div className="loading-character-copy">
+                    <span>{selectedDossier.callsign}</span>
+                    <strong>{selectedCharacter.name}</strong>
+                    <p>{selectedDossier.note}</p>
+                  </div>
+                </div>
+
                 <div className="loading-bar">
                   <div style={{ width: `${Math.round(snapshot.loadingProgress * 100)}%` }} />
+                </div>
+                <div className="loading-progress-meta">
+                  <span>Progresso do boot</span>
+                  <strong>{Math.round(snapshot.loadingProgress * 100)}%</strong>
+                </div>
+                <div className="loading-step-list">
+                  {LOADING_STEPS.map((step, index) => (
+                    <div key={step} className={`loading-step${index <= loadingStepIndex ? " is-active" : ""}`}>
+                      <span>0{index + 1}</span>
+                      <strong>{step}</strong>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
@@ -644,6 +864,18 @@ export function GameShell() {
                 <span>Objetivo</span>
                 <strong>{snapshot.objectiveText}</strong>
               </div>
+              {snapshot.debugFlyEnabled && (
+                <div
+                  className="interaction-pill"
+                  style={{
+                    bottom: snapshot.interactionLabel ? 88 : 32,
+                    background: "rgba(24, 16, 10, 0.94)",
+                    borderColor: "rgba(255, 204, 102, 0.46)"
+                  }}
+                >
+                  XITER ON | F desliga | X {snapshot.playerWorldX} Y {snapshot.playerWorldY}
+                </div>
+              )}
               {snapshot.interactionLabel && <div className="interaction-pill">{snapshot.interactionLabel}</div>}
               {snapshot.narrativeText && <div className="narrative-toast">{snapshot.narrativeText}</div>}
               <div className="death-counter">
@@ -666,6 +898,12 @@ export function GameShell() {
                     <b>E</b>
                     <small>interagir</small>
                   </strong>
+                  {(snapshot.debugFlyUnlocked || snapshot.debugFlyEnabled) && (
+                    <strong>
+                      <b>F</b>
+                      <small>{snapshot.debugFlyEnabled ? `voando X ${snapshot.playerWorldX} Y ${snapshot.playerWorldY}` : "xiter voo"}</small>
+                    </strong>
+                  )}
                   <strong>
                     <b>Esc</b>
                     <small>pause</small>

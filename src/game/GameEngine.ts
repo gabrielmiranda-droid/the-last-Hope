@@ -70,6 +70,7 @@ type Trail = {
 const baseInput: InputState = {
   left: false,
   right: false,
+  down: false,
   dashPressed: false,
   jumpPressed: false,
   jumpHeld: false,
@@ -90,6 +91,7 @@ const EDGE_GRACE = 10;
 const DASH_EXIT_CONTROL_FACTOR = 0.62;
 const DASH_GRAVITY_MULTIPLIER = 0.28;
 const PLAYER_RENDER_SCALE = 1.4;
+const DEBUG_FLY_SPEED = 620;
 
 export class GameEngine {
   private ctx: CanvasRenderingContext2D;
@@ -174,6 +176,8 @@ export class GameEngine {
   private loadingTitle = "Carregando...";
   private loadingSubtitle = "";
   private trapSystem = new TrapSystem();
+  private debugFlyUnlocked = this.readDebugFlyUnlock();
+  private debugFlyEnabled = false;
 
   constructor(ctx: CanvasRenderingContext2D, onSnapshot: (snapshot: GameSnapshot) => void) {
     this.ctx = ctx;
@@ -197,6 +201,7 @@ export class GameEngine {
   injectInput(partial: Partial<InputState>): void {
     if (partial.left !== undefined) this.input.left = partial.left;
     if (partial.right !== undefined) this.input.right = partial.right;
+    if (partial.down !== undefined) this.input.down = partial.down;
     if (partial.jumpHeld !== undefined) this.input.jumpHeld = partial.jumpHeld;
     if (partial.jumpPressed) this.input.jumpPressed = true;
     if (partial.dashPressed) this.input.dashPressed = true;
@@ -619,8 +624,70 @@ export class GameEngine {
     window.addEventListener("keyup", this.handleKeyUp);
   }
 
+  private readDebugFlyUnlock() {
+    const params = new URLSearchParams(window.location.search);
+    return (
+      window.location.hostname === "localhost" ||
+      window.location.hostname === "127.0.0.1" ||
+      params.get("debug") === "1" ||
+      params.get("debugFly") === "1"
+    );
+  }
+
+  private toggleDebugFly() {
+    if (!this.debugFlyUnlocked) {
+      return;
+    }
+
+    if (this.screen !== "playing" && this.screen !== "paused" && this.screen !== "victory") {
+      return;
+    }
+
+    if (this.debugFlyEnabled && this.getSolidRects().some((solid) => overlaps(this.player, solid))) {
+      this.narrativeText = {
+        text: "Saia de dentro de uma parede ou porta antes de desligar o xiter.",
+        ttl: 3
+      };
+      this.publishSnapshot();
+      return;
+    }
+
+    this.debugFlyEnabled = !this.debugFlyEnabled;
+    this.player.energy = PLAYER_MAX_ENERGY;
+    this.player.vx = 0;
+    this.player.vy = 0;
+    this.player.onGround = false;
+    this.player.respawning = false;
+    this.player.dashTimer = 0;
+    this.player.dashCooldown = 0;
+    this.player.jumpsRemaining = 1;
+    this.player.hurtTimer = 0;
+    this.respawnTimer = 0;
+    this.damageTimer = 0;
+    this.damageFlash = 0;
+    this.coyoteTimer = 0;
+    this.jumpBufferTimer = 0;
+    this.deathCause = "";
+    this.deathCauseTimer = 0;
+    this.dashTrail = [];
+    this.input.dashPressed = false;
+    this.input.jumpPressed = false;
+
+    this.narrativeText = this.debugFlyEnabled
+      ? {
+          text: "Xiter de voo ativo. F liga ou desliga, W ou Espaco sobem, S desce.",
+          ttl: 3.4
+        }
+      : {
+          text: "Xiter de voo desligado.",
+          ttl: 2.4
+        };
+
+    this.publishSnapshot();
+  }
+
   private handleKeyDown = (event: KeyboardEvent) => {
-    if (["ArrowLeft", "ArrowRight", "ArrowUp", "Space"].includes(event.code)) {
+    if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Space"].includes(event.code)) {
       event.preventDefault();
     }
 
@@ -632,6 +699,10 @@ export class GameEngine {
       case "ArrowRight":
       case "KeyD":
         this.input.right = true;
+        break;
+      case "ArrowDown":
+      case "KeyS":
+        this.input.down = true;
         break;
       case "ShiftLeft":
       case "ShiftRight":
@@ -650,6 +721,12 @@ export class GameEngine {
       case "KeyE":
         this.input.interactPressed = true;
         break;
+      case "KeyF":
+        if (!event.repeat) {
+          event.preventDefault();
+          this.toggleDebugFly();
+        }
+        break;
       case "Escape":
         event.preventDefault();
         this.input.pausePressed = true;
@@ -666,6 +743,10 @@ export class GameEngine {
       case "ArrowRight":
       case "KeyD":
         this.input.right = false;
+        break;
+      case "ArrowDown":
+      case "KeyS":
+        this.input.down = false;
         break;
       case "ShiftLeft":
       case "ShiftRight":
@@ -820,11 +901,17 @@ export class GameEngine {
       return;
     }
 
-    this.updatePlayer(delta);
+    if (this.debugFlyEnabled) {
+      this.updateDebugFly(delta);
+    } else {
+      this.updatePlayer(delta);
+    }
     this.updateTriggers();
     this.updateCheckpoints();
     this.updateInteractions();
-    this.updateHazards();
+    if (!this.debugFlyEnabled) {
+      this.updateHazards();
+    }
     this.updateRestoration(delta);
     this.updateCamera();
     this.updateDust(delta);
@@ -841,11 +928,44 @@ export class GameEngine {
     const carry = this.trapSystem.updateWorld(this.level, delta, this.player, (player, platform) =>
       this.isStandingOn(player, platform)
     );
-    this.player.x += carry.x;
-    this.player.y += carry.y;
+    if (!this.debugFlyEnabled) {
+      this.player.x += carry.x;
+      this.player.y += carry.y;
+    }
 
     this.respawnPulseTimer = Math.max(0, this.respawnPulseTimer - delta);
     this.cameraShake = Math.max(0, this.cameraShake - delta * 2.4);
+  }
+
+  private updateDebugFly(delta: number) {
+    const player = this.player;
+    const moveX = (this.input.right ? 1 : 0) - (this.input.left ? 1 : 0);
+    const moveY = (this.input.down ? 1 : 0) - ((this.input.jumpHeld || this.input.jumpPressed) ? 1 : 0);
+
+    if (moveX !== 0) {
+      player.facing = moveX > 0 ? 1 : -1;
+    }
+
+    player.vx = moveX * DEBUG_FLY_SPEED;
+    player.vy = moveY * DEBUG_FLY_SPEED;
+    player.dashTimer = 0;
+    player.dashCooldown = 0;
+    player.onGround = false;
+    player.jumpsRemaining = 1;
+    player.hurtTimer = 0;
+    this.coyoteTimer = 0;
+    this.jumpBufferTimer = 0;
+    this.damageTimer = 0;
+    this.targetZoom = 1;
+    this.dashReadyFlash = 0;
+
+    player.x = clamp(player.x + player.vx * delta, 0, this.level.width - player.width);
+    player.y = clamp(player.y + player.vy * delta, 0, this.level.height - player.height);
+
+    this.dashTrail = [];
+    this.input.dashPressed = false;
+    this.input.jumpPressed = false;
+    this.previousOnGround = false;
   }
 
   private updatePlayer(delta: number) {
@@ -1461,6 +1581,10 @@ export class GameEngine {
       deathCause: this.deathCause,
       deathCauseTimer: this.deathCauseTimer,
       restoration: this.restoration,
+      debugFlyUnlocked: this.debugFlyUnlocked,
+      debugFlyEnabled: this.debugFlyEnabled,
+      playerWorldX: Math.round(this.player.x),
+      playerWorldY: Math.round(this.player.y),
       transitionTitle: this.transitionTitle,
       transitionSubtitle: this.transitionSubtitle,
       transitionProgress:
