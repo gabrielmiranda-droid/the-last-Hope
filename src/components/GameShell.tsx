@@ -717,14 +717,16 @@ export function GameShell() {
                   <button
                     className={`front-tab${menuView === "characters" ? " is-active" : ""}`}
                     onClick={() => openMenuView("characters")}
+                    aria-label="Selecao de personagem"
                   >
-                    Personagens
+                    Operativo
                   </button>
                   <button
                     className={`front-tab${menuView === "settings" ? " is-active" : ""}`}
                     onClick={() => openMenuView("settings")}
+                    aria-label="Configuracoes"
                   >
-                    Configuracoes
+                    Ajustes
                   </button>
                 </div>
               </aside>
